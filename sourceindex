@@ -1,0 +1,53 @@
+#!/bin/bash
+set -eo pipefail
+
+GIT_REPO=$(basename -s .git `git config --get remote.origin.url` | uniq)
+if test $GIT_REPO; then
+    PROJECT=${GIT_REPO}
+else
+    PROJECT=${1:-"db"}
+fi
+
+PROJECT_PATH=$(pwd)
+PROJECT_ENV=$(which python)
+PROJECT_DB="${PROJECT_PATH}/${PROJECT}.srctrldb_tmp"
+TO_INDEX=$(find . -name '*.py' ! -path '*/tests/*')
+
+index() {
+    filepath=$1
+    echo ${filepath}
+    /Applications/Sourcetrail.app/Contents/Resources/data/python/SourcetrailPythonIndexer index \
+        --source-file-path=${filepath} \
+        --database-file-path=${PROJECT_DB} \
+        --environment-path=${PROJECT_ENV}
+}
+
+for filepath in $TO_INDEX; do
+    index $filepath
+done
+
+# generate the configurations for sourcetrail
+uuid=$(uuidgen  | tr 'A-Z' 'a-z')
+cat <<EOT >> ${PROJECT}.srctrlprj
+<?xml version="1.0" encoding="utf-8" ?>
+<config>
+    <source_groups>
+        <source_group_${uuid}>
+            <name>Python Source Group</name>
+            <python_environment_path>${PROJECT_ENV}</python_environment_path>
+            <source_extensions>
+                <source_extension>.py</source_extension>
+            </source_extensions>
+            <source_paths>
+                <source_path>./</source_path>
+            </source_paths>
+            <status>enabled</status>
+            <type>Python Source Group</type>
+        </source_group_${uuid}>
+    </source_groups>
+    <version>8</version>
+</config>
+EOT
+
+# open sourcetrail with newly-generated configs
+/Applications/Sourcetrail.app/Contents/MacOS/Sourcetrail --project-file ${PROJECT}.srctrlprj
