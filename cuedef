@@ -1,0 +1,48 @@
+#!/bin/sh
+CUEPATH=${1:-"definitions/allocations"}
+
+function generate_tags() {
+    TAGFILE="tags"
+
+    ctags -R \
+      --langdef=cue \
+      --langmap=cue:.cue \
+      --regex-cue="/([a-zA-Z0-9_]+):[ \t]+([0-9_]+|\([^\)]+\)|\"[^\"]+\")/\1/v,values/" \
+      --regex-cue="/\/\/[ \t]*(.*)/\1/c,comments/" \
+      "$CUEPATH"
+
+    # check if TAGFILE exists
+    if [ ! -f "$TAGFILE" ]; then
+      echo "No tags file found. Did ctags above run? It should have generated a file called 'tags' in this directory."
+      exit 1
+    fi
+
+    # Get rid of the lines that start with "!_TAG" - there are just metadata as far as we're concerned
+    # then, get rid of the first column, which is the matched term. We don't need it - we want the context.
+    # then, clean up the remainder of the line by removing any non-alphanumeric characters, and replacing
+    # multiple spaces with a single space.
+    # Also drop the c or v at the end of the line, which is just a flag for ctags.
+    cleaned=$(cat tags \
+      | grep -v "^\!_TAG" \
+      | cut -f2- \
+      | awk -F'\t' '{
+        line="";
+        for (i=2; i<=NF; i++) line=line $i " ";
+        gsub(/[^a-zA-Z0-9\_:%\.#]/, " ", line);
+        gsub(/ +/, " ", line);
+        gsub(/[cv] $/, "", line);
+        print $1 "\t" line}'
+    )
+
+    # get rid of any duplicates.. this helps with the next step, which is to
+    # reshape the data so it's indexed by the filename.
+    # This significantly reduces the number of tokens because filepaths are no longer repeated.
+    # From 925 lines -> 85, one per file. Tokens drop from ~18k to ~10k. We can use 3.5 for this.
+    cleaned=$(echo "$cleaned" | sort | uniq)
+    cleaned=$(echo "$cleaned" | awk -F'\t' '{a[$1]=a[$1]";"$2} END{for (i in a) print i "\t" a[i]}')
+
+    rm $TAGFILE
+    echo "$cleaned"
+}
+
+generate_tags
