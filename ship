@@ -1,0 +1,19 @@
+#!/bin/bash
+set -eo pipefail
+
+CURRENT=$(git branch --show-current)
+branch=${1:-$CURRENT}
+
+if [ -z "$branch" ] || [ "$branch" = "main"  ] || [ "$branch" = "master" ]; then
+  echo "I can't rename '$branch'"
+  exit
+fi
+
+if [[ "$branch" =~ "⛴️".* ]]; then
+  new_name="${branch/⛴️\-/}"
+else
+  new_name="⛴️-$branch"
+fi
+
+git branch -m $branch $new_name
+echo "Branch has been renamed from '$branch' to '$new_name'"
