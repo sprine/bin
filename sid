@@ -46,7 +46,7 @@ data=$(jq -n \
         '{model: $mdl, "temperature": $temp, messages:[{ role: "system", content: $sys}, {role: "user", content: $usr}]}')
 
 # Make the API request
-result=$(curl -X POST https://openai-proxy.shopify.ai/v1/chat/completions \
+result=$(curl -X POST $OPENAI_API_BASE/v1/chat/completions \
     -H 'Content-Type: application/json' \
     -H "Authorization: Bearer $OPENAI_API_KEY" \
     -d "$data")
