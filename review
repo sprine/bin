@@ -1,0 +1,20 @@
+#!/bin/bash
+set -eo pipefail
+
+get_staged_data() {
+    git diff --staged
+}
+
+get_modified_files() {
+    git status -s | grep -v '^D' | while read mode file; do echo $mode $(stat -f "%Sm" $file) $file; done | sort
+}
+
+prompt_data() {
+    local staged_data=$(get_staged_data)
+    local modified_files=$(get_modified_files)
+    echo "${staged_data}\n---\nLast modified:\n${modified_files}"
+}
+
+prompt_data | sid \
+    --system "These are the result of git diff, and last modified times of the files" \
+    --user "Provide a summary of changes as git commit message. Please start with a title, and then list the full message. IMPORTANT: Ensure the changes follow a logical order, and their raison d'etre is evident from the message. IMPORTANT: cluster related changes together. Use the timestamp data."
