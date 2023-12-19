@@ -16,5 +16,6 @@ prompt_data() {
 }
 
 prompt_data | sid \
-    --system "These are the result of git diff, and last modified times of the files" \
-    --user "Provide a summary of changes as git commit message. Please start with a title, and then list the full message. IMPORTANT: Ensure the changes follow a logical order, and their raison d'etre is evident from the message. IMPORTANT: cluster related changes together. Use the timestamp data."
+    --system "These are the result of git diff, and last modified times of the files." \
+    --user "Provide a summary of changes as git commit message. Start with a title/ IMPORTANT: Ensure the changes follow a logical order, and their raison d'etre is evident from the message. IMPORTANT: cluster related changes together. Utilize the timestamp data. After providing the commit message, suggest 3 improvements that would make the code more readable, explainable, correct or efficient." \
+    | glow -
