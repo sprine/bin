@@ -1,0 +1,8 @@
+function clean() {
+    find . \( -name '*.pyc' -o -name '*.pyo' -o -name '*~' \) -print -delete >/dev/null
+    find . -name '__pycache__' -exec rm -rvf '{}' + >/dev/null
+    find . -name '*.egg-info' -type d -exec rm -rvf '{}' + >/dev/null
+}
+
+clean
+echo "🧹 Cleaned up the project."
