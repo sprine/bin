@@ -1,0 +1,6 @@
+#!/bin/bash
+
+SYSTEM_PROMPT="These are the result of git diff written by a developer. Consider the changes, build context and fix mistakes. Be thorough in your code analysis."
+USER_PROMPT="Suggest how to break apart the changes for explainability."
+
+git diff main.. | sid --system "$SYSTEM_PROMPT" --user "$USER_PROMPT" | glow -
