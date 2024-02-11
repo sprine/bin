@@ -1,0 +1,27 @@
+#! /bin/bash
+
+# this shell script stands for Today I Learned (TIL). It takes the input string and appends it to the TIL.md file along with a data and time stamp.
+INPUT=$1
+TIL_FILE=~/dev/notes/TIL.md
+
+# trim the input string
+input_trimmed=$(echo $INPUT | xargs)
+
+# exit if there is no input
+if [ -z "$input_trimmed" ]; then
+  echo "No input provided"
+  exit 1
+fi
+
+# create file if it doesn't exist
+if [ ! -f $TIL_FILE ]; then
+  touch $TIL_FILE
+fi
+
+# get the current date and time
+now=$(date +'%m/%d/%Y %H:%M:%S')
+
+# append the input string to the TIL.md file, then append the date and time
+echo "- $input_trimmed" >> $TIL_FILE
+echo "$now" >> $TIL_FILE
+echo "" >> $TIL_FILE
