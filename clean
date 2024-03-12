@@ -1,7 +1,11 @@
 function clean() {
+    # python cleanup
     find . \( -name '*.pyc' -o -name '*.pyo' -o -name '*~' \) -print -delete >/dev/null
     find . -name '__pycache__' -exec rm -rvf '{}' + >/dev/null
     find . -name '*.egg-info' -type d -exec rm -rvf '{}' + >/dev/null
+    find . -name '.pytest_cache' -exec rm -rvf '{}' + >/dev/null
+    # remove test monitoring data
+    find . -name '.testmondata*' -exec rm -rvf '{}' + >/dev/null
 }
 
 clean
