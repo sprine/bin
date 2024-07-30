@@ -2,7 +2,7 @@
 
 # this shell script stands for Today I Learned (TIL). It takes the input string and appends it to the TIL.md file along with a data and time stamp.
 INPUT=$1
-TIL_FILE=~/dev/notes/TIL.md
+TIL_FILE=~/notes/TIL.md
 
 # trim the input string
 input_trimmed=$(echo $INPUT | xargs)
