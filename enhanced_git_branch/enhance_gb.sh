@@ -21,7 +21,7 @@ BRANCHES=$(git for-each-ref --sort=-committerdate refs/heads/ --format='%(HEAD) 
 
 # For each branch, check if it's merged
 while IFS= read -r branch_info; do
-  is_head=$(echo "$branch_info" | cut -d ';' -f 1 | grep -q '*' && echo "* " || echo "  ")
+  is_head=$(echo "$branch_info" | cut -d ';' -f 1 | grep -q '*' && echo "* " || echo " ")
   rel_date=$(echo "$branch_info" | cut -d ';' -f 1 | sed 's/*//')
   branch=$(echo "$branch_info" | cut -d ';' -f 2)
   sha=$(echo "$branch_info" | cut -d ';' -f 3)
@@ -56,11 +56,11 @@ while IFS= read -r branch_info; do
   if [ -z "$merged_status" ]; then
     if git merge-base --is-ancestor "$branch" "$MAIN_BRANCH" 2>/dev/null; then
       if [ -z "$pr_state" ]; then  # Only show this if we didn't find a PR
-        merged_status="${BLUE}[MERGED-GIT]${RESET}"
-        pr_display="${merged_status} | "
+        merged_status="${GREEN}merged-git${RESET}"
+        pr_display="${merged_status}"
       fi
     fi
   fi
 
-  echo -e "${is_head}${DIM}${GREEN}${rel_date}${RESET} ${YELLOW}${branch}${RESET} - ${RED}${sha}${RESET} ${DIM}- ${subject} ${author}${RESET} /${pr_display}"
+  echo -e "${is_head}${DIM}${GREEN}${rel_date}${RESET} ${YELLOW}${branch}${RESET} ${DIM}- ${subject} ${author}${RESET} ${RED}${sha}${RESET} ${pr_display}"
 done <<< "$BRANCHES"
